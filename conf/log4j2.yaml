@@ -1,0 +1,16 @@
+Configuration:
+  monitorInterval: 60
+  status: warn
+
+  Appenders:
+    Console:
+      name: Console
+      target: SYSTEM_OUT
+      PatternLayout:
+        Pattern: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{1}:%L - %m %ex%n"
+
+  Loggers:
+    AsyncRoot:
+      level: info
+      AppenderRef:
+        ref: Console
