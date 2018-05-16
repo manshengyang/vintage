@@ -155,7 +155,7 @@ object VMTests extends Logging {
           val actualLogHash = Hex.encode(Kec.hash(RLPCodec.encodeAuto[LogEntry](ret.substate.logs)))
 
           val post = testCase.fields("post").asJsObject.fields
-          val postKeys = (ret.theta.keys.map(_.value) ++ post.keys).toSet
+          val postKeys = (ret.theta.keys.map(_.toString) ++ post.keys).toSet
           val trie = new Trie(db)
           val matchState = postKeys.forall { k =>
             val actualAcc = ret.theta.getOrElse(Address(k), null)
@@ -194,7 +194,7 @@ object VMTests extends Logging {
             val dest = expected("destination").asInstanceOf[JsString].value
             val gasLimit = parseNum(expected("gasLimit"))
             val value = parseNum(expected("value"))
-            (dest == c.dest.value && gasLimit == c.gas && value == c.value
+            (dest == c.dest.toString && gasLimit == c.gas && value == c.value
               && data == Hex.encode(c.data))
           } && vm.callCreates.size == callCreates.size
 

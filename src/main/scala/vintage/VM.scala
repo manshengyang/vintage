@@ -675,10 +675,11 @@ class VM(db: Db, blockContext: BlockContext) extends Logging {
         builder.setCost(cost)
           .setActiveMemoryBytes(pos, len)
           .burnGas()
-        val (stack2, topics) = ((stack1, Vector[Word]()) /: (0 until numTopics)) { case (p, _) =>
-          val (s, t) = p
-          val (x, s2) = s.pop()
-          (s2, t :+ x)
+        val (stack2, topics) = ((stack1, Vector[Array[Byte]]()) /: (0 until numTopics)) {
+          case (p, _) =>
+            val (s, t) = p
+            val (x, s2) = s.pop()
+            (s2, t :+ x.toPaddedByteArray)
         }
         builder.setStack(stack2)
           .addLog(LogEntry(i.address, topics, data))
@@ -722,6 +723,9 @@ class VM(db: Db, blockContext: BlockContext) extends Logging {
       }
       case OpCodes.CALL => {
         val (gas, to, value, stack1) = stack.pop3()
+        if (!i.perm && value > 0) {
+          throw ExecutionException("Cannot modify state inside a STATICCALL context")
+        }
         val toAccount = Address(to)
         callMessage(builder.setStack(stack1), gas, toAccount, toAccount, value, value, i.perm)
       }

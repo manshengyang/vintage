@@ -4,7 +4,7 @@ import vintage.{Address, UInt256}
 
 case class LogEntry(
   address: Address,
-  topics: Vector[UInt256],
+  topics: Vector[Array[Byte]],
   data: Array[Byte],
 )
 
@@ -13,16 +13,16 @@ object LogEntry {
 
   implicit val logEntryRLP: RLPConvertible[LogEntry] = new RLPConvertible[LogEntry] {
     def convertTo(obj: LogEntry): RLPObject = RLPList(Vector[RLPObject](
-      obj.address.data,
-      obj.topics.map(i => wrapBytes(i.toPaddedByteArray)),
+      obj.address,
+      obj.topics.map(i => wrapBytes(i)),
       obj.data,
     ))
 
     def convertFrom(rlp: RLPObject): LogEntry = {
       val l = unwrapList(rlp)
       LogEntry(
-        Address(unwrapBytes(l(0))),
-        unwrapList(l(1)).map(o => UInt256(unwrapBytes(o))),
+        autoUnwrap[Address](l(0)),
+        unwrapList(l(1)).map(o => unwrapBytes(o)),
         l(2),
       )
     }

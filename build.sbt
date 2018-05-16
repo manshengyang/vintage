@@ -35,7 +35,8 @@ libraryDependencies ++= Seq(
   "org.apache.logging.log4j" % "log4j-core" % log4jVersion,
   "org.apache.logging.log4j" % "log4j-jul" % log4jVersion,
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.5.0",
-  "io.spray" %%  "spray-json" % "1.3.3"
+  "io.spray" %%  "spray-json" % "1.3.3",
+  "com.madgag.spongycastle" % "core" % "1.58.0.0"
 )
 
 javaOptions ++= jvmOptions ++ Seq(

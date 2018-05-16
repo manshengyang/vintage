@@ -1,6 +1,6 @@
 package vintage.rlp
 
-import vintage.UInt256
+import vintage.{Address, UInt256}
 
 case class RLPException(msg: String) extends RuntimeException(msg)
 
@@ -18,7 +18,7 @@ object Implicits {
     def convertTo(obj: String): RLPObject = RLPBytes(obj.getBytes)
     def convertFrom(rlp: RLPObject): String = rlp match {
       case RLPBytes(bytes) => new String(bytes)
-      case _ => throw new RLPException("Invalid string rlp")
+      case _ => throw RLPException("Invalid string rlp")
     }
   }
 
@@ -26,7 +26,7 @@ object Implicits {
     def convertTo(obj: ByteArray): RLPObject = RLPBytes(obj)
     def convertFrom(rlp: RLPObject): ByteArray = rlp match {
       case RLPBytes(bytes) => bytes
-      case _ => throw new RLPException("Invalid byte array rlp")
+      case _ => throw RLPException("Invalid byte array rlp")
     }
   }
 
@@ -35,13 +35,18 @@ object Implicits {
     def convertFrom(rlp: RLPObject): UInt256 = RLPCodec.toScalar(unwrapBytes(rlp))
   }
 
+  implicit val addressRLP: RLPConvertible[Address] = new RLPConvertible[Address] {
+    def convertTo(v: Address): RLPObject = RLPBytes(v.data)
+    def convertFrom(rlp: RLPObject): Address = Address(unwrapBytes(rlp))
+  }
+
   implicit def wrapBytes(bytes: ByteArray): RLPObject = bytesRLP.convertTo(bytes)
   implicit def unwrapBytes(obj: RLPObject): ByteArray = bytesRLP.convertFrom(obj)
 
   implicit def wrapList(l: Vector[RLPObject]): RLPObject = RLPList(l)
   implicit def unwrapList(obj: RLPObject): Vector[RLPObject] = obj match {
     case RLPList(l) => l
-    case _ => ???
+    case _ => throw RLPException("Invalid RLP list")
   }
 
   implicit def autoWrap[A: RLPConvertible](a: A): RLPObject =
